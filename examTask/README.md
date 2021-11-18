@@ -31,6 +31,7 @@ To run the project, do the following:
 ```
 pip install -r requirements.txt
 ```
+    
     This will install all the needed python packages.
 Notice: Always install packages wihtin a virtual environment to reduce possible harm on the system compiler.
 
