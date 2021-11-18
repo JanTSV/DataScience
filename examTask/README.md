@@ -28,12 +28,12 @@ Needed: python3 and pip.
 
 To run the project, do the following:
 1. Install all requirements and packages:
+    This will install all the needed python packages.
+Notice: Always install packages wihtin a virtual environment to reduce possible harm on the system compiler.
+
 ```
 pip install -r requirements.txt
 ```
-    
-    This will install all the needed python packages.
-Notice: Always install packages wihtin a virtual environment to reduce possible harm on the system compiler.
 
 2. Open the `main.ipynb` file. That is the Jupyter-Notebook project providing all the solutions and documentation for this project.
 
