@@ -92,16 +92,20 @@ def pearson_r(x, y):
 
 
 def plot_linear_regression(x, y, title, show=True):
-    # y = ax + b
-    a, b = np.polyfit(x, y, 1)
-    xlin = np.array([x.min(), x.max()])
-
     plt.xlabel("Year")
-    plt.ylabel("Unemployed opulation in percent") 
-    plt.title(title)
+    plt.ylabel("Unemployed population in percent") 
     plt.plot(x, y)
-    plt.plot(xlin, a * xlin + b, linewidth=2, color="red")
+    plt.title(title)
 
+    # 1 dimensional ployfit
+    a, b = np.polyfit(x, y, 1)
+    model_1d = np.poly1d(np.polyfit(x, y, 1))
+    plt.plot(x, model_1d(x), linewidth=2, color="red", label="Ployfit | 1D")
+
+    # 3 dimensional ployfit
+    model_3d = np.poly1d(np.polyfit(x, y, 3))
+    plt.plot(x, model_3d(x), linewidth=2, color="yellow", label="Ployfit | 3D")
     if show:
         print(title, "Slope: ", a, " Intercept: ", b)
+        plt.legend()
         plt.show()
