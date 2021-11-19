@@ -109,3 +109,58 @@ def plot_linear_regression(x, y, title, show=True):
         print(title, "Slope: ", a, " Intercept: ", b)
         plt.legend()
         plt.show()
+
+
+def calculate_slope(x, y):
+    slope = ((x-x.mean())*(y-y.mean())).sum()/(np.square(x-x.mean())).sum()
+    return(slope)
+
+
+def calculate_interception_point(x, y, m):
+    c = y.mean()-(m*x.mean())
+    return(c)
+
+
+def calculate_rss(x, y):
+    m = calculate_slope(x, y)
+    c = calculate_interception_point(x, y, m)
+    rss = np.sum(np.square(y - m * x - c))
+    return rss
+
+
+def linear_regression_vs_rss(x, y, title, show=True):
+    plt.xlabel("Year")
+    plt.ylabel("Unemployed population in percent") 
+    plt.plot(x, y)
+    plt.title(title)
+
+    # 1 dimensional ployfit
+    slope, intercept = np.polyfit(x, y, 1)
+    model_1d = np.poly1d(np.polyfit(x, y, 1))
+    plt.plot(x, model_1d(x), linewidth=2, color="red", label="Ployfit | 1D")
+
+    # RSS
+    rss= calculate_rss(x, y)
+    print("RSS: ", rss)
+
+    # Draw residuals
+    points = x.max() - x.min() + 1
+    a_vals = np.linspace(x.min(), x.max(), points)
+    residuals = np.empty_like(a_vals)
+
+    # Calculate residuals
+    for i, a in enumerate(a_vals):
+        residuals[i] = y[i] - (slope * a + intercept)
+
+    # Plot residuals
+    label = None
+    for i, residual in enumerate(residuals):
+        if i == 0:
+            label = "Residuals"
+        else:
+            label = None
+        plt.plot([a_vals[i], a_vals[i]], [y[i], y[i] - residual], linewidth=0.5, alpha=0.5, color="red", label=label)
+
+    if show:
+        plt.legend()
+        plt.show() 
