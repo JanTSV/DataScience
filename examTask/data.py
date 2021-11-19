@@ -1,7 +1,8 @@
 import pandas as pd
 from pathlib import Path
-
 from pandas.core.frame import DataFrame
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def read_raw_data(low_file: Path, middle_file: Path, high_file: Path) -> dict:
@@ -31,20 +32,76 @@ def merge_and_clean_data(eurostrat_data: dict, oecd_data: dict) -> DataFrame:
         eurostrat_data: Data from eurostrat.
         oecd_data: Data from OECD.
     """
-    ret = pd.DataFrame(columns=["Country", "Year", "Unemployment", "Education"])
-    ret["Country"] = ret["Country"].astype(str)
-    ret["Year"] = ret["Country"].astype(int)
-    ret["Unemployment"] = ret["Country"].astype(float)
-    ret["Education"] = ret["Country"].astype(int)
-    
-    education = {"Low": 0, "Middle": 1, "High": 2}
+    ret = pd.DataFrame(columns=["Year", 
+                                "USA - Low", "USA - Middle", "USA - High", 
+                                "Germany - Low", "Germany - Middle", "Germany - High"])
+
+    # ret["Year"] = ret["Year"].asfreq("A")
+    # ret["Year"] = ret["Year"].astype()
 
     # USA
-    for key in oecd_data:
-        df = oecd_data[key]
-        df = df.loc[df["LOCATION"] == "USA"]
-        df = df.rename(columns={"LOCATION": "Country", "TIME": "Year", "Value": "Unemployment"})
-        df["Education"] = [0] * len(df)
-        ret.append(df)
-        print(ret)
+    ret["USA - Low"] = ret["USA - Low"].astype(float)  # Means: Unemloyed population in % with Low education
+    ret["USA - Middle"] = ret["USA - Middle"].astype(float)
+    ret["USA - High"] = ret["USA - High"].astype(float)
+
+    # Germany
+    ret["Germany - Low"] = ret["Germany - Low"].astype(float)
+    ret["Germany - Middle"] = ret["Germany - Middle"].astype(float)
+    ret["Germany - High"] = ret["Germany - High"].astype(float)
+    
+    # Copy time
+    ret["Year"] = oecd_data["Low"]["TIME"][oecd_data["Low"]["LOCATION"] == "USA"].astype(int).values
+
+    # Extract USA
+    ret["USA - Low"]  = oecd_data["Low"]["Value"][oecd_data["Low"]["LOCATION"] == "USA"].astype(float).values
+    ret["USA - Middle"] = oecd_data["Middle"]["Value"][oecd_data["Middle"]["LOCATION"] == "USA"].astype(float).values
+    ret["USA - High"] = oecd_data["High"]["Value"][oecd_data["High"]["LOCATION"] == "USA"].astype(float).values
+
+    # Extract and merge Germany
+    ret["Germany - Low"] = (eurostrat_data["Low"]["Value"][eurostrat_data["Low"]["GEO"] == "Germany (until 1990 former territory of the FRG)"].astype(float).values + \
+                            oecd_data["Low"]["Value"][oecd_data["Low"]["LOCATION"] == "DEU"].astype(float).values) / 2
+    ret["Germany - Middle"] = (eurostrat_data["Middle"]["Value"][eurostrat_data["Middle"]["GEO"] == "Germany (until 1990 former territory of the FRG)"].astype(float).values + \
+                               oecd_data["Middle"]["Value"][oecd_data["Middle"]["LOCATION"] == "DEU"].astype(float).values) / 2
+    ret["Germany - High"] = (eurostrat_data["High"]["Value"][eurostrat_data["High"]["GEO"] == "Germany (until 1990 former territory of the FRG)"].astype(float).values + \
+                             oecd_data["High"]["Value"][oecd_data["High"]["LOCATION"] == "DEU"].astype(float).values) / 2
+
+    ret["Year"] = pd.to_datetime(ret["Year"], format="%Y").dt.to_period("Y")
     return ret
+
+
+def plot_data(df: DataFrame, country: str, show=True):
+    plt.xlabel("Year")
+    plt.ylabel("Unemployed population in percent")
+    df_c = df.copy()
+    df_c["Year"] = df_c["Year"].dt.year
+    plt.plot("Year", F"{country} - Low", data=df_c, label=F"{country} | Low education")
+    plt.plot("Year", F"{country} - Middle", data=df_c, label=F"{country} | Middle education")
+    plt.plot("Year", F"{country} - High", data=df_c, label=F"{country} | High education")
+    if show: 
+        plt.legend()
+        plt.show()
+
+
+def pearson_r(x, y):
+    """Compute Pearson correlation coefficient between two arrays."""
+    # Compute correlation matrix: corr_mat
+    corr_mat = np.corrcoef(x, y)
+
+    # Return entry [0,1]
+    return corr_mat[0,1]
+
+
+def plot_linear_regression(x, y, title, show=True):
+    # y = ax + b
+    a, b = np.polyfit(x, y, 1)
+    xlin = np.array([x.min(), x.max()])
+
+    plt.xlabel("Year")
+    plt.ylabel("Unemployed opulation in percent") 
+    plt.title(title)
+    plt.plot(x, y)
+    plt.plot(xlin, a * xlin + b, linewidth=2, color="red")
+
+    if show:
+        print(title, "Slope: ", a, " Intercept: ", b)
+        plt.show()
