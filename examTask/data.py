@@ -82,6 +82,16 @@ def plot_data(df: DataFrame, country: str, show=True):
         plt.show()
 
 
+def plot_single_data(df: DataFrame, key: str, show=True):
+    plt.xlabel("Year")
+    plt.ylabel(F"Unemployed population in percent")
+    plt.title(key)
+    df_c = df.copy()
+    df_c["Year"] = df_c["Year"].dt.year
+    plt.plot("Year", key, data=df_c)
+    if show:
+        plt.show()
+
 def pearson_r(x, y):
     """Compute Pearson correlation coefficient between two arrays."""
     # Compute correlation matrix: corr_mat
@@ -164,3 +174,18 @@ def linear_regression_vs_rss(x, y, title, show=True):
     if show:
         plt.legend()
         plt.show() 
+
+
+def pairs_bootstrap(x, y, size=1):
+    inds = np.arange(len(x))
+    slopes = []
+    intercepts = []
+
+    for i in range(size):
+        index = np.random.choice(inds, len(inds))
+        xx, yy = x[index], y[index]
+        slope, intercept = np.polyfit(xx, yy, 1)
+        slopes.append(slope)
+        intercepts.append(intercept)
+    
+    return slopes, intercepts
