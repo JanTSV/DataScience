@@ -92,6 +92,7 @@ def plot_single_data(df: DataFrame, key: str, show=True):
     if show:
         plt.show()
 
+
 def pearson_r(x, y):
     """Compute Pearson correlation coefficient between two arrays."""
     # Compute correlation matrix: corr_mat
@@ -181,7 +182,7 @@ def pairs_bootstrap(x, y, size=1):
     slopes = []
     intercepts = []
 
-    for i in range(size):
+    for _ in range(size):
         index = np.random.choice(inds, len(inds))
         xx, yy = x[index], y[index]
         slope, intercept = np.polyfit(xx, yy, 1)
@@ -189,3 +190,16 @@ def pairs_bootstrap(x, y, size=1):
         intercepts.append(intercept)
     
     return slopes, intercepts
+
+
+def pearson_coefficient_hypothesis_test(permute_data, fix_data, func=pearson_r, size=1000):
+    pearson_observed = func(permute_data, fix_data)
+    replicates = np.empty(size)
+    print("Observed pearson: ", pearson_observed)
+
+    for i in range(size):
+        permutated = np.random.permutation(permute_data)
+        replicates[i] = func(permutated, fix_data)
+    
+    p_value = np.sum(replicates >= pearson_observed) / size
+    print("P-Value: ", p_value)
