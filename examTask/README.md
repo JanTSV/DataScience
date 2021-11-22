@@ -33,6 +33,6 @@ To run the project, do the following:
 pip install -r requirements.txt
 ```
 
-2. Open the `main.ipynb` file or click [here](/main.ipynb). That is the Jupyter-Notebook project providing all the solutions and documentation for this project.
+2. Open the `main.ipynb` file or click [here](/examTask/main.ipynb). That is the Jupyter-Notebook project providing all the solutions and documentation for this project.
 
 3. Run the `main.ipynb` file.
