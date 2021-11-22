@@ -6,29 +6,28 @@
 ## Tasks
 The following tasks are given:
 
-1. Explore the data about education and employment rates collected from multiple websites.
-    1. Extract the needed (real) data out of the raw data sets.
-    2. Visualize data with e.g. histogram, mean, box-plots, ...
-    3. Pearson correlation coefficient.
-2. Linear regression.
-3. RSS vs. polyfit.
-4. Pairs bootstrap between education and unemployment rates + condifence intervals.
-5. Plot bootstrap regressions.
-6. Hypothesis test on Pearson correlation.
-7. Conclusions.
-8. Check conclusion against known literature.
+<ol start="0">
+  <li>Collect and download needed data.</li>
+  <li> Explore the data about education and employment rates collected from multiple websites.</li>
+  <li>Linear regression.</li>
+  <li>RSS vs. polyfit.</li>
+  <li>Pairs bootstrap between education and unemployment rates + condifence intervals.</li>
+  <li>Plot bootstrap regressions.</li>
+  <li>Hypothesis test on Pearson correlation.</li>
+  <li>Conclusions.</li>
+</ol>
 
 ## Data sets
 Data sets for unemployment rates and education rates are selected and downloaded from [here](https://ec.europa.eu/eurostat/web/products-eurostat-news/-/DDN-20190920-1) and [here](https://data.oecd.org/unemp/unemployment-rates-by-education-level.htm).
 
-Notice: The websites only provide seperated CSV-files for countries. These data sets need to be merged with python-code.
+Notice: The websites only provide seperated CSV-files for countries. These data sets need to be merged within the python code.
 
 ## Run project
 Needed: python3 and pip.
 
 To run the project, do the following:
-1. Install all requirements and packages. This will install all the needed python packages.
-<br> <br> (*Notice: Always install packages wihtin a virtual environment to reduce possible harm on the system compiler.*)
+1. Install all requirements and packages.
+<br>(*Notice: Always install packages wihtin a virtual environment to reduce possible harm on the system compiler.*)
 
 ```
 pip install -r requirements.txt
