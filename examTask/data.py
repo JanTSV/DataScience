@@ -7,12 +7,15 @@ import numpy as np
 
 def read_raw_data(low_file: Path, middle_file: Path, high_file: Path) -> dict:
     """
-    Read the raw data which is always seperated into differen files for low, middle and high education as Dataframe.
+    Read the raw data which is seperated into different files for low, middle and high education as a Dataframe.
 
     Args:
         low_file: Low education data.
         middle_file: Middle education data.
         high_file: High education data.
+
+    Returns:
+        dict: Dict containing DataFrames for unemployment rates of low, middle and high education.
     """
     
     ret = {
@@ -31,16 +34,16 @@ def merge_and_clean_data(eurostrat_data: dict, oecd_data: dict) -> DataFrame:
     Args:
         eurostrat_data: Data from eurostrat.
         oecd_data: Data from OECD.
+
+    Returns:
+        DataFrame: DataFrame of merged data sets.
     """
     ret = pd.DataFrame(columns=["Year", 
                                 "USA - Low", "USA - Middle", "USA - High", 
                                 "Germany - Low", "Germany - Middle", "Germany - High"])
 
-    # ret["Year"] = ret["Year"].asfreq("A")
-    # ret["Year"] = ret["Year"].astype()
-
     # USA
-    ret["USA - Low"] = ret["USA - Low"].astype(float)  # Means: Unemloyed population in % with Low education
+    ret["USA - Low"] = ret["USA - Low"].astype(float)  # Meaning: Unemloyed population in % with low education
     ret["USA - Middle"] = ret["USA - Middle"].astype(float)
     ret["USA - High"] = ret["USA - High"].astype(float)
 
@@ -70,10 +73,19 @@ def merge_and_clean_data(eurostrat_data: dict, oecd_data: dict) -> DataFrame:
 
 
 def plot_data(df: DataFrame, country: str, show=True):
+    """
+    Plot curves for low, middle and high education for one country.
+
+    Args:
+        df: DataFrame containing all information.
+        country: Plot data for specific country.
+        show: Call plt.show() or not.
+    """
     plt.xlabel("Year")
     plt.ylabel("Unemployed population in percent")
     df_c = df.copy()
     df_c["Year"] = df_c["Year"].dt.year
+    plt.title(F"Unemployment rates for {country}")
     plt.plot("Year", F"{country} - Low", data=df_c, label=F"{country} | Low education")
     plt.plot("Year", F"{country} - Middle", data=df_c, label=F"{country} | Middle education")
     plt.plot("Year", F"{country} - High", data=df_c, label=F"{country} | High education")
@@ -83,6 +95,15 @@ def plot_data(df: DataFrame, country: str, show=True):
 
 
 def plot_single_data(df: DataFrame, key: str, show=True):
+    """
+    Plot single curve of data defined by key.
+
+    Args:
+        df: DataFrame containing all information.
+        key: Key of DataFrame to plot.
+        show: Call plt.show() or not. 
+    """
+    plt.title(F"Unemployment rate for {key}")
     plt.xlabel("Year")
     plt.ylabel(F"Unemployed population in percent")
     plt.title(key)
@@ -94,15 +115,30 @@ def plot_single_data(df: DataFrame, key: str, show=True):
 
 
 def pearson_r(x, y):
-    """Compute Pearson correlation coefficient between two arrays."""
-    # Compute correlation matrix: corr_mat
-    corr_mat = np.corrcoef(x, y)
+    """
+    Compute Pearson correlation coefficient between two arrays.
+    
+    Args:
+        x: Data for x axis.
+        y: Data for y axis.
 
-    # Return entry [0,1]
+    Returns:
+        float: Pearson r for x and y.
+    """
+    corr_mat = np.corrcoef(x, y)
     return corr_mat[0,1]
 
 
 def plot_linear_regression(x, y, title, show=True):
+    """
+    Plot data set with linear regression line.
+
+    Args:
+        x: Data for x axis.
+        y: Data for y axis.
+        title: Title of plot.
+        show: Call plt.show() or not.
+    """
     plt.xlabel("Year")
     plt.ylabel("Unemployed population in percent") 
     plt.plot(x, y)
@@ -117,41 +153,100 @@ def plot_linear_regression(x, y, title, show=True):
     model_3d = np.poly1d(np.polyfit(x, y, 3))
     plt.plot(x, model_3d(x), linewidth=2, color="yellow", label="Ployfit | 3D")
     if show:
-        print(title, "Slope: ", a, " Intercept: ", b)
+        print(title, "\nSlope: ", a, " Intercept: ", b)
         plt.legend()
         plt.show()
 
 
 def calculate_slope(x, y):
+    """
+    Calculate slope of x and y.
+
+    Args:
+        x: Data for x axis.
+        y: Data for y axis.
+
+    Returns:
+        float: Slope of data sets.
+    """
     slope = ((x-x.mean())*(y-y.mean())).sum()/(np.square(x-x.mean())).sum()
     return(slope)
 
 
 def calculate_interception_point(x, y, m):
+    """
+    Calculate interception point of x and y with slope m.
+
+    Args:
+        x: Data for x axis.
+        y: Data for y axis.
+        m: Slope.
+
+    Returns:
+        float: Point of interception with y axis.
+    """
     c = y.mean()-(m*x.mean())
     return(c)
 
 
 def calculate_rss(x, y):
+    """
+    Calculate RSS for x and y.
+
+    Args:
+        x: Data for x axis.
+        y: Data for y axis.
+
+    Returns:
+        float: RSS of x and y.
+    """
     slope = calculate_slope(x, y)
     intercept = calculate_interception_point(x, y, slope)
     return rss(x, y, slope, intercept)
 
 
 def rss(x, y, slope, intercept):
+    """
+    Calculate RSS for x and y with slope and intercept.
+
+    Args:
+        x: Data for x axis.
+        y: Data for y axis.
+        slope: Slope.
+        intercept: Point of interception with y axis.
+    
+    Returns: 
+        float: RSS.
+    """
     return np.sum(np.square(y - slope * x - intercept))
 
 
 def slope_vs_rss(x, y):
+    """
+    Plot the optimization function for RSS by plotting slope against RSS.
+
+    Args:
+        x: Data for x axis.
+        y: Data for y axis.
+    """
+    # a_vals: Slopes.
     a_vals = np.linspace(-1, 1, 100)
+
+    # Ininitialize array for RSS values.
     rss_array = np.empty_like(a_vals)
     slope = calculate_slope(x, y)
     intercept = calculate_interception_point(x, y, slope)
+
+    # Calculate all RSS values over slopes.
     for i, a in enumerate(a_vals):
         rss_array[i] = rss(x, y, a, intercept)
     
+    # Get the minimum.
     best_rss = rss_array.min()
     best_slope = float(a_vals[np.where(rss_array == best_rss)])
+
+    # Plot the optimization function.
+    plt.title("Slope vs RSS")
     plt.xlabel("Slope")
     plt.ylabel("RSS")
     plt.plot(a_vals, rss_array)
@@ -161,6 +256,16 @@ def slope_vs_rss(x, y):
 
 
 def linear_regression_vs_rss(x, y, title, show=True):
+    """
+    Plot the linear regression versus the data set (x, y). Also plot the residuals between the two
+    curves.
+
+    Args:
+        x: Data for x axis.
+        y: Data for y axis.
+        title: Title of plot.
+        show: Call plt.show() or not.
+    """
     plt.xlabel("Year")
     plt.ylabel("Unemployed population in percent") 
     plt.plot(x, y)
@@ -171,8 +276,7 @@ def linear_regression_vs_rss(x, y, title, show=True):
     model_1d = np.poly1d(np.polyfit(x, y, 1))
     plt.plot(x, model_1d(x), linewidth=2, color="red", label="Ployfit | 1D")
 
-    # RSS
-    rss= calculate_rss(x, y)
+    rss_value = calculate_rss(x, y)
 
     # Draw residuals
     points = x.max() - x.min() + 1
@@ -193,27 +297,42 @@ def linear_regression_vs_rss(x, y, title, show=True):
         plt.plot([a_vals[i], a_vals[i]], [y[i], y[i] - residual], linewidth=0.5, alpha=0.5, color="red", label=label)
 
     if show:
+        print(title, "\nRSS: ", rss_value)
         plt.legend()
         plt.show() 
 
 
-def rss_parabola(slope):
-    """Helper function for calculating the plotting range of the rss function. It inverts the minimum of the rss function what generates two new minimums that can then be used as bounding points for the plotting of the actual rss function."""
-    # First: move the rss function on the y axis to zero and then 10 Percent of this way more into the negative direction.
-    # Second: Mirror the negative part (minimum of the function) on the x axis in the positive direction.
-    return abs(calculate_rss(x, y, i, intercept) - slopeY * 1.1)
-
-
-
 def pairs_bootstrap(x, y, size=1):
+    """
+    Perform pairs bootstrap on x and y data.
+
+    Args:
+        x: Data for x axis.
+        y: Data for y axis.
+        size: Number of bootstrap runs.
+    
+    Returns:
+        tuple: All calculated slopes and intercepts.
+    """
+    # Array containing all possible indices.
     inds = np.arange(len(x))
+
+    # All calculated slopes.
     slopes = []
+
+    # All calculated intercepts.
     intercepts = []
 
+    # Perform pairs bootstrap size-times.
     for _ in range(size):
+        # Get random data.
         index = np.random.choice(inds, len(inds))
         xx, yy = x[index], y[index]
+
+        # Calculate slope and intercept of data points.
         slope, intercept = np.polyfit(xx, yy, 1)
+
+        # Append values.
         slopes.append(slope)
         intercepts.append(intercept)
     
@@ -221,13 +340,28 @@ def pairs_bootstrap(x, y, size=1):
 
 
 def pearson_coefficient_hypothesis_test(permute_data, fix_data, func=pearson_r, size=1000):
+    """
+    Test if permute_data and fix_data are independent from each other with
+    hypothesis test (p values) in combination with pearson r.
+
+    Args:
+        permute_data: Data that should be permuted.
+        fix_data: Data that is not permuted.
+        func: Function to calculate specific replicate values.
+        size: Number of runs.
+    """
+    # Observed pearon r over initial data set.
     pearson_observed = func(permute_data, fix_data)
-    replicates = np.empty(size)
     print("Observed pearson: ", pearson_observed)
 
+    # Array with length size.
+    replicates = np.empty(size)
+
+    # Calculate replicate values size times with func on permuted data.
     for i in range(size):
         permutated = np.random.permutation(permute_data)
         replicates[i] = func(permutated, fix_data)
     
+    # Calculate p values.
     p_value = np.sum(replicates >= pearson_observed) / size
     print("P-Value: ", p_value)
