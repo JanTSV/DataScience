@@ -133,10 +133,31 @@ def calculate_interception_point(x, y, m):
 
 
 def calculate_rss(x, y):
-    m = calculate_slope(x, y)
-    c = calculate_interception_point(x, y, m)
-    rss = np.sum(np.square(y - m * x - c))
-    return rss
+    slope = calculate_slope(x, y)
+    intercept = calculate_interception_point(x, y, slope)
+    return rss(x, y, slope, intercept)
+
+
+def rss(x, y, slope, intercept):
+    return np.sum(np.square(y - slope * x - intercept))
+
+
+def slope_vs_rss(x, y):
+    a_vals = np.linspace(-1, 1, 100)
+    rss_array = np.empty_like(a_vals)
+    slope = calculate_slope(x, y)
+    intercept = calculate_interception_point(x, y, slope)
+    for i, a in enumerate(a_vals):
+        rss_array[i] = rss(x, y, a, intercept)
+    
+    best_rss = rss_array.min()
+    best_slope = float(a_vals[np.where(rss_array == best_rss)])
+    plt.xlabel("Slope")
+    plt.ylabel("RSS")
+    plt.plot(a_vals, rss_array)
+    plt.plot(best_slope, best_rss, "ro", label=F"Minimum [{best_slope} | {int(best_rss)}]")
+    plt.legend()
+    plt.show()
 
 
 def linear_regression_vs_rss(x, y, title, show=True):
@@ -152,7 +173,6 @@ def linear_regression_vs_rss(x, y, title, show=True):
 
     # RSS
     rss= calculate_rss(x, y)
-    print("RSS: ", rss)
 
     # Draw residuals
     points = x.max() - x.min() + 1
@@ -175,6 +195,14 @@ def linear_regression_vs_rss(x, y, title, show=True):
     if show:
         plt.legend()
         plt.show() 
+
+
+def rss_parabola(slope):
+    """Helper function for calculating the plotting range of the rss function. It inverts the minimum of the rss function what generates two new minimums that can then be used as bounding points for the plotting of the actual rss function."""
+    # First: move the rss function on the y axis to zero and then 10 Percent of this way more into the negative direction.
+    # Second: Mirror the negative part (minimum of the function) on the x axis in the positive direction.
+    return abs(calculate_rss(x, y, i, intercept) - slopeY * 1.1)
+
 
 
 def pairs_bootstrap(x, y, size=1):
