@@ -18,7 +18,7 @@ The following tasks are given:
 </ol>
 
 ## Data sets
-Data sets for unemployment rates and education rates are selected and downloaded from [here](https://ec.europa.eu/eurostat/web/products-eurostat-news/-/DDN-20190920-1) and [here](https://data.oecd.org/unemp/unemployment-rates-by-education-level.htm).
+Data sets for unemployment rates and education rates are selected and downloaded from [Eurostat](https://ec.europa.eu/eurostat/web/products-eurostat-news/-/DDN-20190920-1) and [OECD](https://data.oecd.org/unemp/unemployment-rates-by-education-level.htm).
 
 Notice: The websites only provide seperated CSV-files for countries. These data sets need to be merged within the python code.
 
